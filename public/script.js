@@ -5,17 +5,25 @@ new Vue({
         total: 0,
         items: [
             {
-                title: 'Item one',
+                title: 'Item 1',
             }, {
-                title: 'Item two',
+                title: 'Item 2',
             }, {
-                title: 'Item three',
+                title: 'Item 3',
             }
-        ]
+        ],
+        cart: []
     },
     methods: {
-        addItem: function () {
+        addItem: function (index) {
             this.total += 9.99;
+            var item = this.items[index];
+            this.cart.push({
+                title: item.title,
+                qty: 1
+            });
+
+
         }
     }
 });
