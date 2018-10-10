@@ -8,22 +8,32 @@ new Vue({
         items: [],
         results: [],
         cart: [],
-        newSearch: 'sports',
+        newSearch: '',
         lastSearch: '',
         loading: false,
         price: 9.99
     },
     methods: {
+        appendItems: function() {
+            if (this.items.length < this.results.length) {
+                var append = this.results.slice(this.items.length, this.items.length + LOAD_NUM);
+                this.items = this.items.concat(append);
+            }
+            console.log('append');
+        },
         onSubmit: function () {
-            this.items = [];
-            this.loading = true;
-            this.$http.get('/search/'.concat(this.newSearch))
+            if(this.newSearch.length) {
+                this.items = [];
+                this.loading = true;
+                this.$http.get('/search/'.concat(this.newSearch))
                 .then(function (res) {
                     this.lastSearch = this.newSearch;
                     this.results = res.data;
-                    this.items = res.data.slice(0, LOAD_NUM);
+                    // this.items = res.data.slice(0, LOAD_NUM);
+                    this.appendItems();
                     this.loading = false;
                 });
+            }
         },
         addItem: function (index) {
             this.total += 9.99;
@@ -70,10 +80,16 @@ new Vue({
     },
     mounted: function () {
         this.onSubmit();
+        var vueInstance = this;
+        var elem = document.getElementById('product-list-bottom');
+        var watcher = scrollMonitor.create(elem);
+        watcher.enterViewport(function () {
+            vueInstance.appendItems();
+        });
+    }, 
+    computed: {
+        noMoreItems: function() {
+            return this.items.length === this.results.length && this.results.length > 0;
+        }
     }
-});
-var elem = document.getElementById('product-list-bottom');
-var watcher = scrollMonitor.create(elem);
-watcher.enterViewport(function () {
-    console.log('ENTER VIEWPORT');
 });
